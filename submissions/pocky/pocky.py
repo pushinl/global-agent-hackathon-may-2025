@@ -6,9 +6,8 @@ import subprocess
 from openai import OpenAI
 from exa_py import Exa
 from dotenv import load_dotenv
-from searching.models.openai_agent import OpenAIAgent
-from validation.ValidationAgent import ValidationAgent
-from validation.AttackIntentAgent import AttackIntentAgent
+from validation.validation_agent import ValidationAgent
+from validation.attack_intent_agent import AttackIntentAgent
 
 # === CONFIGURATION ===
 load_dotenv()
@@ -59,26 +58,7 @@ def process_poc_results(cve_id):
 			save_result(cve_id, poc)
 			return poc
 	
-	# Process all result files
-	search_result = {"success": False, "PoC": ""}
-	result_files = [f for f in os.listdir("./search_output") if f.startswith(f"{cve_id}_") and f.endswith(".json")]
-	
-	for file in result_files:
-		with open(os.path.join("./search_output", file), "r") as f:
-			try:
-				data = json.load(f)
-				if data.get("success") is True:
-					search_result = data
-					log(cve_id, "found_poc", f"Found successful PoC in {file}")
-					break
-			except json.JSONDecodeError:
-				log(cve_id, "error", f"Invalid JSON file: {file}")
-	
-	if search_result["success"] is False:
-		log(cve_id, "no_poc", "No PoC found")
-		search_result["PoC"] = init_result
-	
-	return search_result["PoC"]
+	return init_result
 
 # === MAIN WORKFLOW ===
 def run_agent_for_cve(cve_id):
